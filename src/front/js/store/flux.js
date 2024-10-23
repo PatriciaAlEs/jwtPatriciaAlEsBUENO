@@ -1,54 +1,72 @@
 const getState = ({ getStore, getActions, setStore }) => {
-	return {
-		store: {
-			message: null,
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
-		},
-		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
-			},
+  return {
+    store: {
+      message: null,
+      user: null,
+      authError: null,
+    },
+    actions: {
 
-			getMessage: async () => {
-				try{
-					// fetching data from the backend
-					const resp = await fetch(process.env.BACKEND_URL + "/api/hello")
-					const data = await resp.json()
-					setStore({ message: data.message })
-					// don't forget to return something, that is how the async resolves
-					return data;
-				}catch(error){
-					console.log("Error loading message from backend", error)
-				}
-			},
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
+      signupUser: async (email, password) => {
+        try {
+          const res = await fetch(`${process.env.BACKEND_URL}/api/signup`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+          });
 
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
+          if (!res.ok) {
+            const errorData = await res.json();
+            console.error("Error del servidor:", errorData);
+            setStore({
+              authError: errorData.msg || "Error al registrar usuario",
+            });
+            return { error: errorData.msg || "Error al registrar usuario" };
+          }
+          const data = await res.json();
+          setStore({ user: data.user, authError: null });
 
-				//reset the global store
-				setStore({ demo: demo });
-			}
-		}
-	};
+          return data;
+        } catch (error) {
+          console.error("Error al registrar usuario:", error);
+          setStore({ authError: error.message });
+          return { error: error.message };
+        }
+      },
+
+      loginUser: async (email, password) => {
+        try {
+          const resp = await fetch(`${process.env.BACKEND_URL}/api/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+
+          if (!resp.ok) {
+            const errorData = await resp.json();
+            setStore({ authError: errorData.msg });
+            return { error: errorData.msg };
+          }
+
+          const data = await resp.json();
+          sessionStorage.setItem("accessToken", data.access_token);
+          setStore({ user: data.user, authError: null });
+          return data;
+        } catch (error) {
+          setStore({ authError: "Error durante el inicio de sesión" });
+          return { error: "Error durante el inicio de sesión" };
+        }
+      },
+	  
+      logoutUser: () => {
+        sessionStorage.removeItem("accessToken");
+        setStore({ user: null, authError: null });
+        console.log("cerrando la sesión...");
+      },
+    },
+  };
 };
 
 export default getState;

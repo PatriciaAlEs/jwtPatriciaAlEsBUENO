@@ -1,10 +1,9 @@
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
 import "../../styles/allstyles.css";
 
-export const Navbar = () => {
+const PrivateMenu = () => {
   const { actions } = useContext(Context);
   const navigate = useNavigate();
 
@@ -14,15 +13,21 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="navbar navbar-light bg-light">
-      <div className="container">
-        <Link to="/">
-          <span className="navbar-brand mb-0 h1">React Boilerplate</span>
-        </Link>
+    <div className="private-menu">
+      <h2>Welcome to the Private Menu</h2>
+      <ul>
+        <li>
+          <a>Profile</a>
+        </li>
+        <li>
+          <a>Settings</a>
+        </li>
         <div className="ml-auto">
           <button onClick={handleLogout}>Logout</button>
         </div>
-      </div>
-    </nav>
+      </ul>
+    </div>
   );
 };
+
+export default PrivateMenu;
