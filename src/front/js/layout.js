@@ -5,7 +5,6 @@ import { BackendURL } from "./component/backendURL";
 import Signup from "./component/signup.js";
 import Login from "./component/login.js";
 import PrivateMenu from "./component/private.js";
-import ProtectedRoute from "./component/protectedRoute.js";
 import injectContext from "./store/appContext";
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
@@ -24,14 +23,7 @@ const Layout = () => {
           <Routes>
             <Route path="/signup" element={<Signup />} />
             <Route path="/" element={<Login />} />
-            <Route
-              path="/private"
-              element={
-                <ProtectedRoute>
-                  <PrivateMenu />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/private" element={<PrivateMenu />} />
             <Route path="*" element={<h1>Not found!</h1>} />
           </Routes>
           <Footer />

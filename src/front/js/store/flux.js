@@ -6,7 +6,6 @@ const getState = ({ getStore, getActions, setStore }) => {
       authError: null,
     },
     actions: {
-
       signupUser: async (email, password) => {
         try {
           const res = await fetch(`${process.env.BACKEND_URL}/api/signup`, {
@@ -55,16 +54,51 @@ const getState = ({ getStore, getActions, setStore }) => {
           setStore({ user: data.user, authError: null });
           return data;
         } catch (error) {
-          setStore({ authError: "Error durante el inicio de sesión" });
-          return { error: "Error durante el inicio de sesión" };
+          setStore({ authError: "Error en el inicio de sesión" });
+          return { error: "Error en el inicio de sesión" };
         }
       },
-	  
+
       logoutUser: () => {
         sessionStorage.removeItem("accessToken");
         setStore({ user: null, authError: null });
         console.log("cerrando la sesión...");
       },
+      getPrivate: async () => {
+        const token = sessionStorage.getItem("accessToken");
+      
+        // Si no hay token redirige al login, esto era lo que fallaba¿?
+        if (!token) {
+          console.warn("No se encontró token. Redirige al inicio de sesión.");
+          setStore({ authError: "Inicia sesión para acceder a esta página" });
+          return false;
+        }
+      
+        try {
+          const response = await fetch(`${process.env.BACKEND_URL}/api/protected`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+      
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Error al obtener datos privados:", errorData);
+            return false;
+          }
+      
+          const data = await response.json();
+          console.log(data);
+          return data;
+        } catch (error) {
+          console.error("Error de conexión:", error);
+          return false;
+        }
+      },
+      
+      
     },
   };
 };

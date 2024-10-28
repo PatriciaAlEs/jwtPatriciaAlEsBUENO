@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
 import "../../styles/allstyles.css";
+import { useEffect } from "react";
 
 const PrivateMenu = () => {
   const { actions } = useContext(Context);
@@ -11,6 +12,17 @@ const PrivateMenu = () => {
     actions.logoutUser();
     navigate("/");
   };
+
+  useEffect(() => {
+    const validateAccess = async () => {
+      const isValid = await actions.getPrivate();
+      if (!isValid) {
+        alert("No estás logueado");
+        navigate("/");
+      }
+    };
+    validateAccess();
+  }, []);
 
   return (
     <div className="private-menu">
